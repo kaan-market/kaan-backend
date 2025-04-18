@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kaan Backend Test Interface</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Kaan Backend Test Interface</h1>
+        
+        <!-- Authentication Section -->
+        <section class="auth-section">
+            <h2>Authentication</h2>
+            <div class="form-group">
+                <label for="phone">Phone Number:</label>
+                <input type="tel" id="phone" placeholder="+1234567890" required>
+            </div>
+            <button onclick="requestOtp()" class="btn">Request OTP</button>
+            
+            <div class="otp-section" id="otpSection" style="display: none;">
+                <div class="form-group">
+                    <label for="otp">OTP:</label>
+                    <input type="text" id="otp" placeholder="Enter OTP" required>
+                </div>
+                <button onclick="verifyOtp()" class="btn">Verify OTP</button>
+            </div>
+        </section>
+
+        <!-- Profile Management Section -->
+        <section class="profile-section" id="profileSection" style="display: none;">
+            <h2>Profile Management</h2>
+            
+            <div class="form-group">
+                <label for="username">Username (required):</label>
+                <input type="text" id="username" required>
+            </div>
+            <div class="form-group">
+                <label for="bio">Bio:</label>
+                <textarea id="bio"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="location">Location (required):</label>
+                <input type="text" id="location" required>
+            </div>
+            <div class="form-group">
+                <label for="moq">Minimum Order Quantity:</label>
+                <input type="number" id="moq" value="1" min="1">
+            </div>
+            <div class="form-group">
+                <label for="interests">Interests (comma-separated):</label>
+                <input type="text" id="interests" placeholder="electronics, gadgets, computers">
+            </div>
+            
+            <div class="button-group">
+                <button onclick="updateProfile()" class="btn">Update Profile</button>
+                <button onclick="getProfile()" class="btn">Get Profile</button>
+                <button onclick="deleteProfile()" class="btn btn-danger">Delete Profile</button>
+            </div>
+        </section>
+
+        <!-- Response Section -->
+        <section class="response-section">
+            <h3>API Response</h3>
+            <pre id="response" class="response"></pre>
+        </section>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html> 

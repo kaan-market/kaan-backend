@@ -1,6 +1,7 @@
 import { PrismaClient } from '../../generated/prisma';
 import { generateOtp, hashOtp, verifyOtp } from '../../utils/otp';
 import { sendOtpSms } from '../../utils/twilio';
+import jwt from 'jsonwebtoken';
 
 export class AuthService {
   private prisma: PrismaClient;
@@ -69,6 +70,17 @@ export class AuthService {
       where: { id: otpRecord.id },
     });
 
-    return { success: true, user };
+    // Generate JWT token
+    if (!process.env.JWT_SECRET) {
+      throw new Error('JWT_SECRET environment variable is not set');
+    }
+
+    const token = jwt.sign(
+      { id: user.id, phone: user.phone },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    return { success: true, token };
   }
 } 

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kaan Backend Test Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .response {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            white-space: pre-wrap;
+        }
+        .error {
+            color: red;
+        }
+        .success {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <h1>Kaan Backend Test Interface</h1>
+
+    <!-- Authentication Section -->
+    <div class="section">
+        <h2>Authentication</h2>
+        <div class="form-group">
+            <label for="phone">Phone Number:</label>
+            <input type="tel" id="phone" placeholder="+1234567890">
+        </div>
+        <button onclick="requestOtp()">Request OTP</button>
+        
+        <div class="form-group" id="otpSection" style="display: none;">
+            <label for="otp">OTP:</label>
+            <input type="text" id="otp" placeholder="Enter OTP">
+            <button onclick="verifyOtp()">Verify OTP</button>
+        </div>
+    </div>
+
+    <!-- Profile Management Section -->
+    <div class="section" id="profileSection" style="display: none;">
+        <h2>Profile Management</h2>
+        
+        <!-- Create/Update Profile -->
+        <div class="form-group">
+            <label for="username">Username (required):</label>
+            <input type="text" id="username" required>
+        </div>
+        <div class="form-group">
+            <label for="bio">Bio:</label>
+            <textarea id="bio"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="location">Location (required):</label>
+            <input type="text" id="location" required>
+        </div>
+        <div class="form-group">
+            <label for="moq">Minimum Order Quantity:</label>
+            <input type="number" id="moq" value="1" min="1">
+        </div>
+        <div class="form-group">
+            <label for="interests">Interests (comma-separated):</label>
+            <input type="text" id="interests" placeholder="electronics, gadgets, computers">
+        </div>
+        <button onclick="updateProfile()">Update Profile</button>
+        <button onclick="getProfile()">Get Profile</button>
+        <button onclick="deleteProfile()" style="background-color: #dc3545;">Delete Profile</button>
+    </div>
+
+    <div class="response" id="response"></div>
+
+    <script>
+        let token = '';
+
+        async function requestOtp() {
+            const phone = document.getElementById('phone').value;
+            try {
+                const response = await fetch('http://localhost:8000/auth/request-otp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ phone }),
+                });
+                const data = await response.json();
+                showResponse(data);
+                if (response.ok) {
+                    document.getElementById('otpSection').style.display = 'block';
+                }
+            } catch (error) {
+                showResponse({ error: error.message }, true);
+            }
+        }
+
+        async function verifyOtp() {
+            const phone = document.getElementById('phone').value;
+            const otp = document.getElementById('otp').value;
+            try {
+                const response = await fetch('http://localhost:8000/auth/verify-otp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ phone, otp }),
+                });
+                const data = await response.json();
+                showResponse(data);
+                if (response.ok && data.token) {
+                    token = data.token;
+                    document.getElementById('profileSection').style.display = 'block';
+                }
+            } catch (error) {
+                showResponse({ error: error.message }, true);
+            }
+        }
+
+        async function updateProfile() {
+            const username = document.getElementById('username').value;
+            const bio = document.getElementById('bio').value;
+            const location = document.getElementById('location').value;
+            const moq = document.getElementById('moq').value;
+            const interests = document.getElementById('interests').value.split(',').map(i => i.trim()).filter(i => i);
+
+            try {
+                const response = await fetch('http://localhost:8000/profile', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                        username,
+                        bio,
+                        location,
+                        moq: parseInt(moq),
+                        interests,
+                    }),
+                });
+                const data = await response.json();
+                showResponse(data);
+            } catch (error) {
+                showResponse({ error: error.message }, true);
+            }
+        }
+
+        async function getProfile() {
+            try {
+                const response = await fetch('http://localhost:8000/profile', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+                const data = await response.json();
+                showResponse(data);
+                if (response.ok) {
+                    // Populate form with profile data
+                    document.getElementById('username').value = data.username || '';
+                    document.getElementById('bio').value = data.bio || '';
+                    document.getElementById('location').value = data.location || '';
+                    document.getElementById('moq').value = data.moq || 1;
+                    document.getElementById('interests').value = data.interests?.join(', ') || '';
+                }
+            } catch (error) {
+                showResponse({ error: error.message }, true);
+            }
+        }
+
+        async function deleteProfile() {
+            if (!confirm('Are you sure you want to delete your profile?')) return;
+            
+            try {
+                const response = await fetch('http://localhost:8000/profile', {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+                const data = await response.json();
+                showResponse(data);
+                if (response.ok) {
+                    document.getElementById('profileSection').style.display = 'none';
+                    token = '';
+                }
+            } catch (error) {
+                showResponse({ error: error.message }, true);
+            }
+        }
+
+        function showResponse(data, isError = false) {
+            const responseDiv = document.getElementById('response');
+            responseDiv.textContent = JSON.stringify(data, null, 2);
+            responseDiv.className = 'response ' + (isError ? 'error' : 'success');
+        }
+    </script>
+</body>
+</html> 

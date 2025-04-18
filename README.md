@@ -99,6 +99,13 @@ Required environment variables:
 ## API Endpoints
 - Base URL: `http://localhost:8000`
 - Auth routes: `/auth/*`
+  - POST `/auth/request-otp` - Request OTP
+  - POST `/auth/verify-otp` - Verify OTP and get token
+- Profile routes: `/profile/*`
+  - POST `/profile` - Create profile (requires username and location)
+  - PUT `/profile` - Update profile
+  - GET `/profile` - Get profile
+  - DELETE `/profile` - Delete profile
 
 ## Security Features
 1. OTP hashing using bcrypt
@@ -117,3 +124,11 @@ Run tests using: `npm test`
 - Unit tests for auth service
 - Mock implementations for external services
 - Comprehensive test coverage for authentication flow
+
+
+### Notes
+1. The `moq` (Minimum Order Quantity) field must be a positive number
+2. The `interests` field must be an array of strings
+3. All string fields are trimmed of whitespace
+4. Profile updates are partial - only provided fields are updated
+5. The `username` and `location` fields are required for profile creation
