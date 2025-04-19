@@ -6,6 +6,7 @@ import authRoutes from "./modules/auth/auth.routes";
 import profileRoutes from "./modules/profile/profile.routes";
 import { UnauthorizedException } from "./utils/exceptions";
 
+
 dotenv.config();
 
 const app = express();
