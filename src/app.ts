@@ -12,6 +12,8 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 
+const port = process.env.PORT || 10000;
+
 // Basic CORS configuration
 app.use(cors());
 
@@ -44,6 +46,6 @@ app.use((req: Request, res: Response) => {
   res.status(404).json({ error: 'Not Found' });
 });
 
-app.listen(10000, () => {
-  console.log("Server running on http://localhost:10000");
+app.listen(port, () => {
+  console.log(`Server running on http://localhost:${port}`);
 });
