@@ -43,6 +43,6 @@ app.use((req: Request, res: Response) => {
   res.status(404).json({ error: 'Not Found' });
 });
 
-app.listen(8000, () => {
-  console.log("Server running on http://localhost:8000");
+app.listen(10000, () => {
+  console.log("Server running on http://localhost:10000");
 });
